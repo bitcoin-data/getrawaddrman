@@ -1,0 +1,36 @@
+# This workflow will wget getrawadrman.json files each night at 0 UTC and add them to this repository.
+# Files are fetched from https://demo.peer.observer/addrman/
+
+name: demo-peer-observer
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-slim
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Configure git
+      run: |
+        git config --local user.email "0xb10c+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "bot"
+    - name: Download files
+      run: |
+        wget https://demo.peer.observer/addrman/hal -O getrawaddrman-hal.json.gz
+        gunzip getrawaddrman-hal.json.gz
+        wget https://demo.peer.observer/addrman/len -O getrawaddrman-len.json.gz
+        gunzip getrawaddrman-len.json.gz
+    - name: Commit changes
+      run: |
+        git add *.json
+        git commit -m "Updated demo.peer.observer files: $(date)" -a -m "TIMESTAMP: $(date +%s)" || true
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
