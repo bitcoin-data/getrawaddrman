@@ -23,9 +23,9 @@ jobs:
     - name: Download files
       run: |
         wget https://demo.peer.observer/addrman/hal -O getrawaddrman-hal.json.gz
-        gunzip -f getrawaddrman-hal.json.gz
+        zcat getrawaddrman-hal.json.gz | jq > getrawaddrman-hal.json
         wget https://demo.peer.observer/addrman/len -O getrawaddrman-len.json.gz
-        gunzip -f getrawaddrman-len.json.gz
+        zcat getrawaddrman-len.json.gz | jq > getrawaddrman-len.json
     - name: Commit changes
       run: |
         git add *.json
