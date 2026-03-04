@@ -11,6 +11,11 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-slim
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        node: [hal, len]
     steps:
     - uses: actions/checkout@v6
       with:
@@ -22,13 +27,11 @@ jobs:
         git config --local user.name "bot"
     - name: Download files
       run: |
-        wget https://demo.peer.observer/addrman/hal -O getrawaddrman-hal.json.gz
-        zcat getrawaddrman-hal.json.gz | jq --sort-keys > getrawaddrman-hal.json
-        wget https://demo.peer.observer/addrman/len -O getrawaddrman-len.json.gz
-        zcat getrawaddrman-len.json.gz | jq --sort-keys > getrawaddrman-len.json
+        wget https://demo.peer.observer/addrman/${{ matrix.node }} -O getrawaddrman-${{ matrix.node }}.json.gz
+        zcat getrawaddrman-${{ matrix.node }}.json.gz | jq --sort-keys > getrawaddrman-${{ matrix.node }}.json
     - name: Commit changes
       run: |
-        git add *.json
+        git add getrawaddrman-${{ matrix.node }}.json
         git commit -m "Updated demo.peer.observer files: $(date)" -a -m "TIMESTAMP: $(date +%s)" || true
     - name: Push changes
       uses: ad-m/github-push-action@master
