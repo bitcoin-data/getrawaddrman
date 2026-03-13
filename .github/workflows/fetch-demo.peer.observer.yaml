@@ -25,6 +25,7 @@ jobs:
       run: |
         git config --local user.email "0xb10c+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "bot"
+        git config pull.rebase true
     - name: Download files
       run: |
         wget https://demo.peer.observer/addrman/${{ matrix.node }} -O getrawaddrman-${{ matrix.node }}.json.gz
@@ -33,6 +34,9 @@ jobs:
       run: |
         git add getrawaddrman-${{ matrix.node }}.json
         git commit -m "Updated demo.peer.observer files: $(date)" -a -m "TIMESTAMP: $(date +%s)" || true
+    # There might have been changes from another job in this matrix: pull these first.
+    - name: Pull changes
+      run: git pull
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
